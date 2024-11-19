@@ -5,7 +5,13 @@ import express from "express";
 import bodyParser from "body-parser";
 import fetch from "node-fetch";
 import admin from "firebase-admin"; 
-import firebaseKey from "./healthst-64a0d-firebase-adminsdk-zxccr-ef37ea3ad0.json" assert { type: "json" };
+import fs from "fs";
+import path from "path";
+import { fileURLToPath } from 'url';
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const firebaseKey = JSON.parse(fs.readFileSync(path.resolve(__dirname, './healthst-64a0d-firebase-adminsdk-zxccr-ef37ea3ad0.json'), 'utf-8'));
+
 
 const app = express();
 app.use(bodyParser.json());
