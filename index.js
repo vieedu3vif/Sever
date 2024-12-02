@@ -28,7 +28,7 @@ admin.initializeApp({
 });
 async function fetchTelemetryData(deviceId) {
   const currentTime = new Date();
-  const twel = new Date(currentTime.getTime() - 1 * 60 * 1000);
+  const twel = new Date(currentTime.getTime() - 3 * 60 * 1000);
   const startTimestamp = twel.getTime();
   const endTimestamp = currentTime.getTime();
   try {
