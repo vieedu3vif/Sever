@@ -61,7 +61,7 @@ async function checkAndNotify() {
     if (data) {
       console.log(`Telemetry data for device ${deviceId}:`, data);
 
-      if (data.temperature && data.temperature[0]?.value > 37.2) {
+      if (data.temperature && data.temperature[0]?.value > 37) {
         sendNotification(
           "Bệnh nhân bất thường",
           `Nhiệt độ: ${data.temperature[0].value}°C, vượt ngưỡng!`
