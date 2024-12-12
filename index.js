@@ -10,7 +10,7 @@ import path from "path";
 import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-const firebaseKey = JSON.parse(fs.readFileSync(path.resolve(__dirname, './healthst-64a0d-firebase-adminsdk-zxccr-ef37ea3ad0.json'), 'utf-8'));
+const firebaseKey = JSON.parse(fs.readFileSync(path.resolve(__dirname, './healthst-64a0d-firebase-adminsdk-zxccr-58480ceab9.json'), 'utf-8'));
 
 
 const app = express();
