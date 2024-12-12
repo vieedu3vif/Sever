@@ -1,17 +1,10 @@
 import dotenv from "dotenv";
-dotenv.config(); 
+dotenv.config();
 
 import express from "express";
 import bodyParser from "body-parser";
 import fetch from "node-fetch";
-import admin from "firebase-admin"; 
-import fs from "fs";
-import path from "path";
-import { fileURLToPath } from 'url';
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-const firebaseKey = JSON.parse(fs.readFileSync(path.resolve(__dirname, './healthst-64a0d-firebase-adminsdk-zxccr-58480ceab9.json'), 'utf-8'));
-
+import admin from "firebase-admin";
 
 const app = express();
 app.use(bodyParser.json());
@@ -21,11 +14,25 @@ const deviceIds = [
   "c7826090-9c28-11ef-b5a8-ed1aed9a651f",
   "f009edb0-9cde-11ef-b5a8-ed1aed9a651f",
 ];
-const JWT_TOKEN = "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJkdWNtaW5ocGhvY29AZ21haWwuY29tIiwidXNlcklkIjoiMDgyOTQxNzAtOWMyMS0xMWVmLWI1YTgtZWQxYWVkOWE2NTFmIiwic2NvcGVzIjpbIlRFTkFOVF9BRE1JTiJdLCJzZXNzaW9uSWQiOiI1MjM2NmQyMy1kNGJiLTQyZDMtOWUxYi04ZDMxYzA5NmRiMmUiLCJleHAiOjE3MzQ0OTgwNzQsImlzcyI6InRoaW5nc2JvYXJkLmlvIiwiaWF0IjoxNzMyNjk4MDc0LCJmaXJzdE5hbWUiOiJuZ3V5ZW4iLCJsYXN0TmFtZSI6ImR1YyBtaW5oIiwiZW5hYmxlZCI6dHJ1ZSwicHJpdmFjeVBvbGljeUFjY2VwdGVkIjp0cnVlLCJpc1B1YmxpYyI6ZmFsc2UsInRlbmFudElkIjoiMDZhYzY1NzAtOWMyMS0xMWVmLWI1YTgtZWQxYWVkOWE2NTFmIiwiY3VzdG9tZXJJZCI6IjEzODE0MDAwLTFkZDItMTFiMi04MDgwLTgwODA4MDgwODA4MCJ9.fpAoudKBxKs2oDeXf_qwH407PdlUHULzsPTtmSvJthgZlJugWfRqJQqGRemoDd-00NfNoQLz6pBShChwrEwMxA"; // Thay bằng JWT Token của bạn
+const JWT_TOKEN = "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJkdWNtaW5ocGhvY29AZ21haWwuY29tIiwidXNlcklkIjoiMDgyOTQxNzAtOWMyMS0xMWVmLWI1YTgtZWQxYWVkOWE2NTFmIiwic2NvcGVzIjpbIlRFTkFOVF9BRE1JTiJdLCJzZXNzaW9uSWQiOiI1MjM2NmQyMy1kNGJiLTQyZDMtOWUxYi04ZDMxYzA5NmRiMmUiLCJleHAiOjE3MzQ0OTgwNzQsImlzcyI6InRoaW5nc2JvYXJkLmlvIiwiaWF0IjoxNzMyNjk4MDc0LCJmaXJzdE5hbWUiOiJuZ3V5ZW4iLCJsYXN0TmFtZSI6ImR1YyBtaW5oIiwiZW5hYmxlZCI6dHJ1ZSwicHJpdmFjeVBvbGljeUFjY2VwdGVkIjp0cnVlLCJpc1B1YmxpYyI6ZmFsc2UsInRlbmFudElkIjoiMDZhYzY1NzAtOWMyMS0xMWVmLWI1YTgtZWQxYWVkOWE2NTFmIiwiY3VzdG9tZXJJZCI6IjEzODE0MDAwLTFkZDItMTFiMi04MDgwLTgwODA4MDgwODA4MCJ9.fpAoudKBxKs2oDeXf_qwH407PdlUHULzsPTtmSvJthgZlJugWfRqJQqGRemoDd-00NfNoQLz6pBShChwrEwMxA";
+
+const firebaseKey = {
+  type: process.env.TYPE,
+  project_id: process.env.PROJECT_ID,
+  private_key_id: process.env.PRIVATE_KEY_ID,
+  private_key: process.env.PRIVATE_KEY.replace(/\\n/g, '\n'),
+  client_email: process.env.CLIENT_EMAIL,
+  client_id: process.env.CLIENT_ID,
+  auth_uri: process.env.AUTH_URI,
+  token_uri: process.env.TOKEN_URI,
+  auth_provider_x509_cert_url: process.env.AUTH_PROVIDER_CERT_URL,
+  client_x509_cert_url: process.env.CLIENT_CERT_URL,
+};
 
 admin.initializeApp({
   credential: admin.credential.cert(firebaseKey),
 });
+
 async function fetchTelemetryData(deviceId) {
   const currentTime = new Date();
   const twel = new Date(currentTime.getTime() - 3 * 60 * 1000);
@@ -54,6 +61,7 @@ async function fetchTelemetryData(deviceId) {
   }
   return null;
 }
+
 async function checkAndNotify() {
   for (const deviceId of deviceIds) {
     const data = await fetchTelemetryData(deviceId);
@@ -90,7 +98,7 @@ function sendNotification(title, body) {
       title,
       body,
     },
-    topic: "alerts", 
+    topic: "alerts",
   };
 
   admin
@@ -103,7 +111,7 @@ function sendNotification(title, body) {
       console.error("Error sending notification:", error.message);
     });
 }
- 
+
 app.get("/check-telemetry", async (req, res) => {
   try {
     await checkAndNotify();
@@ -115,7 +123,6 @@ app.get("/check-telemetry", async (req, res) => {
     res.status(500).send("An error occurred.");
   }
 });
-
 
 setInterval(checkAndNotify, 60 * 1000);
 const PORT = process.env.PORT || 3000;
